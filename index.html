@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Neon Tower - Free Stacking Game</title>
+<meta name="description" content="Neon Tower is a free addictive stacking game. Tap to drop blocks, build the tallest tower and beat your best score. Play instantly in your browser.">
+<meta name="theme-color" content="#0b1020">
+<!-- GOOGLE ADSENSE: apna publisher ID (ca-pub-XXXXXXXXXXXXXXXX) yahan lagayen aur comment hata den -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+header{height:44px;width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 16px;max-width:520px}
+.logo{font-weight:800;letter-spacing:.12em;font-size:15px;background:linear-gradient(90deg,#4df3ff,#a855f7,#ff4d9d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.icons button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:10px;height:30px;padding:0 12px;font-size:13px;cursor:pointer}
+.stage{position:relative;width:min(100vw,calc((100svh - 110px) * .5714));aspect-ratio:400/700;border-radius:18px;overflow:hidden;box-shadow:0 10px 50px rgba(120,80,255,.35),0 0 0 1px rgba(255,255,255,.08)}
+canvas{width:100%;height:100%;display:block;touch-action:manipulation}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(6,8,22,.62);backdrop-filter:blur(6px);text-align:center;padding:24px;transition:opacity .25s}
+.overlay.hide{opacity:0;pointer-events:none}
+.overlay h1{margin:0;font-size:40px;letter-spacing:.06em;background:linear-gradient(90deg,#4df3ff,#a855f7,#ff4d9d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.overlay p{margin:0;color:#c8cdf0;font-size:15px;line-height:1.5}
+.big{font-size:64px;font-weight:800;line-height:1}
+.btn{margin-top:6px;border:0;border-radius:999px;padding:14px 38px;font-size:18px;font-weight:700;color:#0b1020;background:linear-gradient(90deg,#4df3ff,#a855f7);cursor:pointer;box-shadow:0 8px 30px rgba(77,243,255,.35)}
+.btn:active{transform:scale(.97)}
+.ad{width:100%;max-width:520px;height:60px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6b7399;overflow:hidden}
+footer{font-size:11px;color:#6b7399;padding:2px 0 6px}
+footer a{color:#8f98cc}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">NEON TOWER</div>
+  <div class="icons"><button id="mute" aria-label="Sound">🔊 Sound</button></div>
+</header>
+
+<div class="stage" id="stage">
+  <canvas id="c" width="400" height="700"></canvas>
+
+  <div class="overlay" id="startO">
+    <h1>NEON<br>TOWER</h1>
+    <p>Tap, click or press Space<br>to drop the block.<br>Align perfectly to grow your tower!</p>
+    <p id="bestStart"></p>
+    <button class="btn" id="playBtn">PLAY</button>
+  </div>
+
+  <div class="overlay hide" id="overO">
+    <p>GAME OVER</p>
+    <div class="big" id="finalScore">0</div>
+    <p id="bestOver"></p>
+    <button class="btn" id="againBtn">PLAY AGAIN</button>
+  </div>
+</div>
+
+<!-- Ad slot: game ke BAHAR neeche (AdSense policy: game area par ad na lagayen) -->
+<div class="ad" id="adSlot">
+  <!-- AdSense approve hone ke baad yeh comment hata kar apna ad unit lagayen:
+  <ins class="adsbygoogle" style="display:block;width:100%;height:60px"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="1234567890"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  -->
+</div>
+<footer><a href="/privacy.html">Privacy Policy</a></footer>
+
+<script>
+(() => {
+  const W = 400, H = 700, BH = 28, START_W = 170, BASE_Y = H - 130;
+  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const startO = document.getElementById('startO'), overO = document.getElementById('overO');
+  const finalScore = document.getElementById('finalScore');
+  const bestStart = document.getElementById('bestStart'), bestOver = document.getElementById('bestOver');
+  const muteBtn = document.getElementById('mute');
+
+  let best = 0;
+  try { best = parseInt(localStorage.getItem('neonTowerBest') || '0', 10) || 0; } catch (e) {}
+  let muted = false;
+  try { muted = localStorage.getItem('neonTowerMuted') === '1'; } catch (e) {}
+  const showBest = () => { const t = best ? 'Best: ' + best : ''; bestStart.textContent = t; };
+  showBest();
+  const updMute = () => { muteBtn.textContent = muted ? '🔇 Muted' : '🔊 Sound'; };
+  updMute();
+  muteBtn.addEventListener('click', e => {
+    e.stopPropagation(); muted = !muted; updMute();
+    try { localStorage.setItem('neonTowerMuted', muted ? '1' : '0'); } catch (err) {}
+  });
+
+  // ---------- audio ----------
+  let ac = null;
+  function tone(freq, dur, type = 'sine', vol = 0.15) {
+    if (muted) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(); o.stop(ac.currentTime + dur);
+    } catch (e) {}
+  }
+
+  // ---------- state ----------
+  let state = 'ready'; // ready | play | over
+  let blocks, cur, dir, speed, cam, camTarget, score, combo, debris, flashes, popups, shake, overAt;
+  const stars = Array.from({ length: 50 }, () => ({ x: Math.random() * W, y: Math.random() * H * 2, r: Math.random() * 1.6 + .3, p: Math.random() * .25 + .05 }));
+
+  function spawnCur() {
+    const top = blocks[blocks.length - 1], n = blocks.length;
+    const fromLeft = n % 2 === 0;
+    cur = { w: top.w, x: fromLeft ? -top.w * 0.4 : W - top.w * 0.6, hue: (200 + n * 9) % 360 };
+    dir = fromLeft ? 1 : -1;
+    speed = 2.6 + Math.min(n * 0.075, 4.4);
+  }
+
+  function reset() {
+    blocks = [{ x: (W - START_W) / 2, w: START_W, hue: 200 }];
+    score = 0; combo = 0; cam = 0; camTarget = 0; debris = []; flashes = []; popups = []; shake = 0;
+    spawnCur();
+  }
+  reset();
+
+  function startGame() {
+    reset(); state = 'play';
+    startO.classList.add('hide'); overO.classList.add('hide');
+    tone(520, .12, 'triangle');
+  }
+
+  function gameOver() {
+    state = 'over'; overAt = performance.now();
+    tone(140, .5, 'sawtooth', .18);
+    if (score > best) { best = score; try { localStorage.setItem('neonTowerBest', String(best)); } catch (e) {} }
+    finalScore.textContent = score;
+    bestOver.textContent = (score >= best && score > 0 ? '🏆 New best! ' : '') + 'Best: ' + best;
+    showBest();
+    setTimeout(() => overO.classList.remove('hide'), 700);
+  }
+
+  function drop() {
+    const top = blocks[blocks.length - 1];
+    const left = Math.max(top.x, cur.x), right = Math.min(top.x + top.w, cur.x + cur.w);
+    const overlap = right - left;
+    const n = blocks.length;
+    const worldTop = -(n + 1) * BH;
+
+    if (overlap <= 0) {
+      debris.push({ x: cur.x, y: worldTop, w: cur.w, hue: cur.hue, vy: 0, vx: dir * 1.2, a: 1 });
+      cur = null; gameOver(); return;
+    }
+    if (Math.abs(cur.x - top.x) < 5) {
+      // perfect
+      combo++;
+      const nb = { x: top.x, w: top.w, hue: cur.hue };
+      if (combo >= 3 && nb.w < START_W) { const g = Math.min(8, START_W - nb.w); nb.x -= g / 2; nb.w += g; }
+      blocks.push(nb);
+      flashes.push({ y: worldTop, x: nb.x, w: nb.w, t: 0 });
+      popups.push({ text: combo > 1 ? 'PERFECT x' + combo : 'PERFECT', y: worldTop, t: 0 });
+      tone(440 + Math.min(combo, 10) * 70, .18, 'triangle', .16);
+      tone(660 + Math.min(combo, 10) * 90, .22, 'sine', .08);
+    } else {
+      combo = 0;
+      const nb = { x: left, w: overlap, hue: cur.hue };
+      blocks.push(nb);
+      // cut piece
+      if (cur.x < top.x) debris.push({ x: cur.x, y: worldTop, w: left - cur.x, hue: cur.hue, vy: 0, vx: -1.2, a: 1 });
+      else debris.push({ x: right, y: worldTop, w: cur.x + cur.w - right, hue: cur.hue, vy: 0, vx: 1.2, a: 1 });
+      tone(300, .12, 'square', .09);
+      shake = 4;
+    }
+    score++;
+    camTarget = Math.max(0, (blocks.length - 6) * BH);
+    spawnCur();
+  }
+
+  function input(e) {
+    if (e && e.preventDefault && e.type === 'keydown') e.preventDefault();
+    if (state === 'play') drop();
+    else if (state === 'ready') startGame();
+    else if (state === 'over' && performance.now() - overAt > 600) startGame();
+  }
+  document.getElementById('stage').addEventListener('pointerdown', e => { if (e.target.closest('.btn')) return; if (state === 'play') drop(); });
+  document.getElementById('playBtn').addEventListener('click', startGame);
+  document.getElementById('againBtn').addEventListener('click', startGame);
+  window.addEventListener('keydown', e => { if (e.code === 'Space' || e.code === 'Enter') input(e); });
+
+  // ---------- drawing ----------
+  const sy = wy => BASE_Y + cam + wy;
+
+  function drawBlock(x, wTop, w, hue, alpha = 1) {
+    const y = sy(wTop);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.shadowColor = `hsl(${hue},100%,60%)`; ctx.shadowBlur = 16;
+    const g = ctx.createLinearGradient(0, y, 0, y + BH);
+    g.addColorStop(0, `hsl(${hue},95%,68%)`);
+    g.addColorStop(1, `hsl(${hue},85%,48%)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.roundRect(x, y, w, BH - 2, 5); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,.28)';
+    ctx.fillRect(x + 3, y + 2, Math.max(0, w - 6), 3);
+    ctx.restore();
+  }
+
+  function drawBg() {
+    const h = (210 + score * 4) % 360;
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, `hsl(${h},55%,10%)`);
+    g.addColorStop(1, `hsl(${(h + 50) % 360},65%,22%)`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff';
+    for (const s of stars) {
+      const y = ((s.y + cam * s.p) % (H * 1.2));
+      ctx.globalAlpha = .25 + s.r / 3;
+      ctx.beginPath(); ctx.arc(s.x, y, s.r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function render() {
+    ctx.save();
+    if (shake > 0.2) ctx.translate((Math.random() - .5) * shake, (Math.random() - .5) * shake);
+    drawBg();
+
+    // ground glow
+    const gy = sy(0);
+    if (gy < H + 40) {
+      const gg = ctx.createLinearGradient(0, gy, 0, gy + 140);
+      gg.addColorStop(0, 'rgba(80,60,200,.55)'); gg.addColorStop(1, 'rgba(10,10,30,0)');
+      ctx.fillStyle = gg; ctx.fillRect(0, gy, W, 140);
+    }
+
+    blocks.forEach((b, i) => drawBlock(b.x, -(i + 1) * BH, b.w, b.hue));
+    if (cur && state !== 'ready') drawBlock(cur.x, -(blocks.length + 1) * BH, cur.w, cur.hue);
+    if (cur && state === 'ready') drawBlock(cur.x, -(blocks.length + 1) * BH, cur.w, cur.hue, .6);
+
+    for (const d of debris) drawBlock(d.x, d.y, d.w, d.hue, d.a);
+
+    for (const f of flashes) {
+      const p = f.t / 30, y = sy(f.y);
+      ctx.strokeStyle = `rgba(255,255,255,${1 - p})`; ctx.lineWidth = 2;
+      const e = p * 14;
+      ctx.strokeRect(f.x - e, y - e, f.w + e * 2, BH + e * 2 - 2);
+    }
+    for (const p of popups) {
+      const t = p.t / 50;
+      ctx.save();
+      ctx.globalAlpha = 1 - t; ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+      ctx.font = '800 22px system-ui,sans-serif';
+      ctx.shadowColor = '#4df3ff'; ctx.shadowBlur = 12;
+      ctx.fillText(p.text, W / 2, sy(p.y) - 14 - t * 40);
+      ctx.restore();
+    }
+
+    // score
+    ctx.save();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 10;
+    ctx.font = '800 64px system-ui,sans-serif';
+    if (state !== 'ready') ctx.fillText(score, W / 2, 90);
+    if (best && state !== 'ready') { ctx.font = '600 13px system-ui,sans-serif'; ctx.globalAlpha = .7; ctx.fillText('BEST ' + best, W / 2, 114); }
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // ---------- loop ----------
+  let last = performance.now();
+  function frame(t) {
+    const dt = Math.min((t - last) / 16.667, 3); last = t;
+    if (cur && state !== 'over') {
+      const run = state === 'play' ? 1 : 0.5;
+      cur.x += dir * speed * dt * run;
+      if (cur.x <= -cur.w * 0.4) { cur.x = -cur.w * 0.4; dir = 1; }
+      if (cur.x + cur.w >= W + cur.w * 0.4) { cur.x = W + cur.w * 0.4 - cur.w; dir = -1; }
+    }
+    cam += (camTarget - cam) * Math.min(1, 0.08 * dt);
+    for (const d of debris) { d.vy += 0.5 * dt; d.y += d.vy * dt; d.x += d.vx * dt; d.a = Math.max(0, d.a - 0.008 * dt); }
+    debris = debris.filter(d => d.a > 0 && sy(d.y) < H + 100);
+    flashes.forEach(f => f.t += dt); flashes = flashes.filter(f => f.t < 30);
+    popups.forEach(p => p.t += dt); popups = popups.filter(p => p.t < 50);
+    shake *= Math.pow(0.85, dt);
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
