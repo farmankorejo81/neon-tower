@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Neon Tower - Free Stacking Game</title>
 <meta name="description" content="Neon Tower is a free addictive stacking game. Tap to drop blocks, build the tallest tower and beat your best score. Play instantly in your browser.">
 <meta name="theme-color" content="#0b1020">
@@ -10,12 +10,12 @@
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
-body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden;overflow-y:auto;min-height:100%;}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100%;padding-bottom:18px}
 header{height:44px;width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 16px;max-width:520px}
 .logo{font-weight:800;letter-spacing:.12em;font-size:15px;background:linear-gradient(90deg,#4df3ff,#a855f7,#ff4d9d);-webkit-background-clip:text;background-clip:text;color:transparent}
 .icons button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:10px;height:30px;padding:0 12px;font-size:13px;cursor:pointer}
-.stage{position:relative;width:min(100vw,calc((100svh - 110px) * .5714));aspect-ratio:400/700;border-radius:18px;overflow:hidden;box-shadow:0 10px 50px rgba(120,80,255,.35),0 0 0 1px rgba(255,255,255,.08)}
+.stage{position:relative;width:min(100vw,calc((100svh - 150px) * .5714));aspect-ratio:400/700;border-radius:18px;overflow:hidden;box-shadow:0 10px 50px rgba(120,80,255,.35),0 0 0 1px rgba(255,255,255,.08)}
 canvas{width:100%;height:100%;display:block;touch-action:manipulation}
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(6,8,22,.62);backdrop-filter:blur(6px);text-align:center;padding:24px;transition:opacity .25s}
 .overlay.hide{opacity:0;pointer-events:none}
@@ -25,8 +25,7 @@ canvas{width:100%;height:100%;display:block;touch-action:manipulation}
 .btn{margin-top:6px;border:0;border-radius:999px;padding:14px 38px;font-size:18px;font-weight:700;color:#0b1020;background:linear-gradient(90deg,#4df3ff,#a855f7);cursor:pointer;box-shadow:0 8px 30px rgba(77,243,255,.35)}
 .btn:active{transform:scale(.97)}
 .ad{width:100%;max-width:520px;height:60px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6b7399;overflow:hidden}
-footer{font-size:11px;color:#6b7399;padding:2px 0 6px}
-footer a{color:#8f98cc}
+footer{font-size:12px;color:#8b92b8;padding:12px 16px 18px;text-align:center;line-height:1.9;max-width:760px}footer a{color:#b4bcf2;margin:0 7px}.content{width:min(92%,760px);margin:20px auto 0;color:#d8dcf4;line-height:1.7;font-size:15px}.content h2{color:#fff;font-size:22px;margin:24px 0 8px}.content h3{color:#fff;font-size:17px;margin:16px 0 4px}.content p,.content li{color:#c4cae9}.content ul{padding-left:22px}.content a{color:#8deeff}
 </style>
 </head>
 <body>
@@ -61,7 +60,22 @@ footer a{color:#8f98cc}
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   -->
 </div>
-<footer><a href="/privacy.html">Privacy Policy</a></footer>
+<main class="content">
+  <h2>Play Neon Tower Online</h2>
+  <p>Neon Tower is a free browser-based stacking game. Move the glowing block over the tower and tap at the right moment to place it. Every successful placement adds a point. Try to build a taller tower and beat your personal best.</p>
+  <h2>How to Play</h2>
+  <ul><li>Press <strong>Play</strong> to start a round.</li><li>Tap the game, click the game area, or press Space/Enter to drop the moving block.</li><li>Line up blocks carefully. A perfect placement can build your combo.</li><li>If a block misses the tower, the round ends. Choose Play Again to try once more.</li></ul>
+  <h2>Game Features</h2>
+  <p>Neon Tower includes colourful neon-style blocks, simple keyboard and touch controls, sound that can be muted, a score counter, and a best score saved locally in your browser when local storage is available. The game runs in a modern web browser; no account or download is required.</p>
+  <h2>Tips for a Better Score</h2>
+  <p>Watch the moving block rather than the score, tap when its edge lines up with the block below, and use the mute button if you prefer to play silently. The game becomes more challenging as your tower grows, so steady timing is more useful than rushing.</p>
+  <h2>Frequently Asked Questions</h2>
+  <h3>Is Neon Tower free?</h3><p>Yes. You can play the game for free in your browser.</p>
+  <h3>Does it save my score?</h3><p>Your best score is stored in your browser on your device. Clearing browser site data may remove it.</p>
+  <h3>Can I play on a phone?</h3><p>Yes. The game supports touch input on compatible mobile browsers as well as mouse and keyboard input.</p>
+  <h3>Does the game need an account?</h3><p>No account is needed to play.</p>
+</main>
+<footer><a href="/about.html">About</a> · <a href="/privacy.html">Privacy Policy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a></footer>
 
 <script>
 (() => {
