@@ -4,14 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Neon Tower - Free Stacking Game</title>
-<meta name="description" content="Neon Tower is a free addictive stacking game. Tap to drop blocks, build the tallest tower and beat your best score. Play instantly in your browser.">
+<meta name="description" content="Play Neon Tower, a free browser-based stacking challenge. Time each moving block, keep your tower wide, build perfect-drop combos and beat your personal best.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://neon-tower-ivory.vercel.app/">
+<meta property="og:title" content="Neon Tower — Free Block Stacking Game">
+<meta property="og:description" content="Test your timing in Neon Tower. Stack moving blocks, build combos and set a new personal best.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://neon-tower-ivory.vercel.app/">
 <meta name="theme-color" content="#0b1020">
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5589605839708629" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
-body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+html,body{margin:0;min-height:100%;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html{scroll-behavior:smooth}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-x:hidden;overflow-y:auto}
+a{color:#8feeff}
+header{height:52px;flex:0 0 52px}
+.header-links{display:flex;gap:12px;font-size:12px;white-space:nowrap}
+.header-links a{color:#bfc8f5;text-decoration:none}
+.header-links a:hover{text-decoration:underline;color:#fff}
+.stage{width:min(100vw,400px,calc((100svh - 150px) * .5714));flex:0 0 auto}
+.ad{margin:12px auto 0}
+.content{width:min(760px,calc(100% - 32px));margin:24px auto 36px;color:#dce2ff;font-size:15px;line-height:1.75}
+.content h2,.content h3{color:#fff;line-height:1.3}
+.content h2{font-size:25px;margin:30px 0 10px}
+.content h3{font-size:18px;margin:18px 0 6px}
+.content p{margin:8px 0 14px}
+.content a{color:#8feeff}
+.content-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+.info-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.11);border-radius:14px;padding:16px}
+.info-card h3{margin:0 0 6px}
+.info-card p{margin:0;color:#bfc8e8;font-size:14px}
+.content ol,.content ul{padding-left:22px}
+.content li{margin:7px 0}
+.faq details{border-top:1px solid rgba(255,255,255,.13);padding:13px 0}
+.faq summary{cursor:pointer;color:#fff;font-weight:650}
+.faq details p{color:#c5cbea;margin:8px 0 0}
+.site-footer{width:min(760px,calc(100% - 32px));border-top:1px solid rgba(255,255,255,.12);padding:18px 0 28px;color:#9aa5d0;font-size:13px;line-height:1.8}
+.site-footer a{margin-right:14px}
+@media(max-width:420px){header{padding:0 10px}.header-links{gap:8px;font-size:11px}.overlay h1{font-size:34px}}
 header{height:44px;width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 16px;max-width:520px}
 .logo{font-weight:800;letter-spacing:.12em;font-size:15px;background:linear-gradient(90deg,#4df3ff,#a855f7,#ff4d9d);-webkit-background-clip:text;background-clip:text;color:transparent}
 .icons button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:10px;height:30px;padding:0 12px;font-size:13px;cursor:pointer}
@@ -32,11 +64,15 @@ footer a{color:#8f98cc}
 <body>
 <header>
   <div class="logo">NEON TOWER</div>
-  <div class="icons"><button id="mute" aria-label="Sound">🔊 Sound</button></div>
+  <nav class="header-links" aria-label="Main navigation">
+    <a href="#how-to-play">How to play</a>
+    <a href="/about.html">About</a>
+  </nav>
+  <div class="icons"><button id="mute" aria-label="Toggle game sound">🔊 Sound</button></div>
 </header>
 
 <div class="stage" id="stage">
-  <canvas id="c" width="400" height="700"></canvas>
+  <canvas id="c" width="400" height="700" role="img" aria-label="Neon Tower stacking game. A moving block travels across the screen; tap or press Space to drop it onto the tower."></canvas>
 
   <div class="overlay" id="startO">
     <h1>NEON<br>TOWER</h1>
@@ -53,7 +89,56 @@ footer a{color:#8f98cc}
   </div>
 </div>
 
-<!-- Ad slot: game ke BAHAR neeche (AdSense policy: game area par ad na lagayen) -->
+<!-- Ad slot kept outside the interactive game area. Do not add an ad unit until AdSense approval. -->
+<main class="content" id="how-to-play">
+  <h2>Welcome to Neon Tower</h2>
+  <p>Neon Tower is a timing-based block stacking game that runs directly in your browser. A block moves from side to side above your tower. Your task is to choose the right moment to drop it. The part that lands outside the block below is removed, so every placement affects the width of the next block.</p>
+  <p>There is no account to create and no download required. Start a round, learn the movement rhythm and see how high you can build. Your best score is saved locally in this browser when storage is available.</p>
+  <h2>How to play</h2>
+  <ol>
+    <li>Press <strong>Play</strong> to begin a new round.</li>
+    <li>Watch the moving block travel across the top of the tower.</li>
+    <li>Tap or click the game area, or press <strong>Space</strong> or <strong>Enter</strong>, to drop the block.</li>
+    <li>Try to line up the moving block with the top block. Only the overlapping section remains in the tower.</li>
+    <li>Keep placing blocks to increase your score. If a block misses the tower completely, the round ends.</li>
+    <li>Choose Play Again to restart and try to beat your best score.</li>
+  </ol>
+  <div class="content-grid">
+    <section class="info-card"><h3>🎯 Timing matters</h3><p>Follow the moving edge and plan your tap before the block reaches the centre. Small corrections are easier than trying to recover a very narrow tower.</p></section>
+    <section class="info-card"><h3>✨ Perfect placements</h3><p>A close alignment can trigger a Perfect message. Consecutive perfect placements build a combo and create a brief visual effect.</p></section>
+    <section class="info-card"><h3>📈 Watch the tower width</h3><p>When a placement is off-centre, the unused part falls away. A narrower top block leaves less room for the next placement.</p></section>
+    <section class="info-card"><h3>🔊 Play your way</h3><p>Use the Sound button to turn audio feedback on or off. The game remembers this preference in your browser when local storage is available.</p></section>
+  </div>
+  <h2>Controls</h2>
+  <div class="content-grid">
+    <section class="info-card"><h3>Computer</h3><p><strong>Space / Enter:</strong> drop the moving block. <strong>Mouse click:</strong> drop while the round is active.</p></section>
+    <section class="info-card"><h3>Phone or tablet</h3><p><strong>Tap:</strong> touch the game area to drop the block. Use the Sound button to change audio preference.</p></section>
+  </div>
+  <h2>Scoring and game rules</h2>
+  <p>Each successful placement adds one point. The score measures how many blocks you have added after the starting platform. A perfect placement is detected when the moving block is almost exactly aligned with the block below it. Consecutive perfect placements increase the combo counter. If the blocks overlap only partly, the tower continues with the smaller shared section.</p>
+  <p>The round ends when the moving block does not overlap the tower. The game then shows your round score and your best score on this browser. Clearing browser storage or using another browser or device may reset or separate locally saved records.</p>
+  <h2>Tips for a steadier run</h2>
+  <ul>
+    <li>Follow the direction of travel rather than tapping as soon as a block appears.</li>
+    <li>Use the tower's left and right edges as visual alignment guides.</li>
+    <li>After a partial placement, pay extra attention to the reduced width of the next block.</li>
+    <li>Play a few short rounds to become familiar with the increasing movement speed.</li>
+    <li>If sound is distracting, mute it; the visual game does not depend on audio.</li>
+  </ul>
+  <section class="faq">
+    <h2>Frequently asked questions</h2>
+    <details><summary>Is Neon Tower free to play?</summary><p>Yes. The game is available in a modern web browser without creating an account or downloading an app.</p></details>
+    <details><summary>Can I play on a phone?</summary><p>Yes. The game accepts touch input as well as mouse and keyboard input. For the best experience, use an up-to-date browser and portrait orientation.</p></details>
+    <details><summary>How is my best score saved?</summary><p>The game uses your browser's local storage to remember your best score when that feature is available. The score is stored on the device and browser you used to play.</p></details>
+    <details><summary>Why does my tower become narrower?</summary><p>When a moving block is not fully aligned, only the area overlapping the previous block remains. The unused section is removed from the tower.</p></details>
+    <details><summary>What does a Perfect placement mean?</summary><p>It means the moving block is within the game's close-alignment threshold. Consecutive perfect placements build a combo.</p></details>
+    <details><summary>Does the game need sound?</summary><p>No. Sound is optional and can be turned off with the Sound button.</p></details>
+    <details><summary>How can I report a problem?</summary><p>Visit the Contact page and open a GitHub issue. Include your browser, device type and the steps that caused the problem. Do not include private information.</p></details>
+  </section>
+  <h2>About this project</h2>
+  <p>Neon Tower is an independent browser game project. Its focus is a simple skill challenge: observe a moving block, choose a moment to drop it and adapt as the tower changes. The game uses HTML canvas for its visuals and browser storage for local preferences and best-score records.</p>
+  <p>Have an idea to improve the game or found a bug? Visit <a href="/contact.html">Contact</a> and share clear, useful feedback.</p>
+</main>
 <div class="ad" id="adSlot">
   <!-- AdSense approve hone ke baad yeh comment hata kar apna ad unit lagayen:
   <ins class="adsbygoogle" style="display:block;width:100%;height:60px"
@@ -61,8 +146,11 @@ footer a{color:#8f98cc}
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   -->
 </div>
-<footer><a href="/privacy.html">Privacy Policy</a></footer>
-<footer><a href="/about.html">About</a> · <a href="/privacy.html">Privacy Policy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a></footer>
+<footer class="site-footer">
+  <div><a href="/about.html">About</a><a href="/how-to-play.html">How to Play</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a></div>
+  <div>Neon Tower is a free browser-based stacking game. Scores and sound preferences are saved locally in your browser when storage is available.</div>
+  <div>© 2026 Neon Tower. Built for quick, skill-based play.</div>
+</footer>
 
 <script>
 (() => {
